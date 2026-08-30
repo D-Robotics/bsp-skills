@@ -1,7 +1,7 @@
 ---
 name: bsp-env-setup
 description: Prepare the host cross-compilation environment for RDK BSP development — Ubuntu host packages, the gcc-arm-11.2 aarch64 toolchain under /opt, the repo tool, and GitHub SSH keys. Use when the user wants to set up a build machine for RDK X3/X5 system development, or hits missing-build-tool errors (make/cmake/bc/bison not found, toolchain missing). 触发词:BSP 环境、编译环境搭建、交叉编译工具链、gcc-arm-11.2、repo 工具、build 机器准备. Do not use for S-series environments (bsp-s-series) or for building images/kernels directly (bsp-image-build / bsp-kernel-build).
-version: 0.1.0
+version: 1.0.0
 license: Apache-2.0
 metadata:
   author: D-Robotics BSP Team

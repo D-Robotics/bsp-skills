@@ -1,7 +1,7 @@
 ---
 name: bsp-deb-build
 description: Rebuild the official hobot-* debian packages with mk_debs.sh (all or a named package like hobot-boot / hobot-dtb / hobot-multimedia). Use when the user wants to repackage a hobot-* component, inject fixes into the image via deb, or asks which packages can be built. 触发词:hobot-* 包、mk_debs、deb 包、重新打包、hobot-boot、hobot-configs. Do not use for kernel compilation itself (bsp-kernel-build) or full images (bsp-image-build).
-version: 0.1.0
+version: 1.0.0
 license: Apache-2.0
 metadata:
   author: D-Robotics BSP Team

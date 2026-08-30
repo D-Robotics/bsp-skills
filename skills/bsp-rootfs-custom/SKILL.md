@@ -1,7 +1,7 @@
 ---
 name: bsp-rootfs-custom
 description: Make and customize the RDK Ubuntu root filesystem — samplefs/make_ubuntu_rootfs.sh (desktop/server), debootstrap/chroot tooling, the package-list variables (BASE/DESKTOP/SERVER_PACKAGE_LIST…), and hobot_customize_rootfs.sh for users/services. Use when the user wants to build a custom samplefs, add/remove preinstalled apt or python packages, or create users/autostart entries in the image. 触发词:根文件系统、rootfs、samplefs、debootstrap、定制系统、预装软件包、创建用户、自启动. Do not use for whole-image builds (bsp-image-build) or S-series (bsp-s-series).
-version: 0.1.0
+version: 1.0.0
 license: Apache-2.0
 metadata:
   author: D-Robotics BSP Team

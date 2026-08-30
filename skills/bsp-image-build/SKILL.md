@@ -1,7 +1,7 @@
 ---
 name: bsp-image-build
 description: Build an RDK system image identical to the official release using pack_image.sh — choose a build_params config (ubuntu-22.04 desktop/server × rdk-x5/rdk-x3 × beta/release), local build mode -l, and third_packages preinstalls. Use when the user wants to build/flash-able RDK OS image, customize preinstalled debs, or asks what pack_image.sh does. 触发词:系统镜像、整机镜像、pack_image.sh、desktop/server 版本、build_params、third_packages、.img. Do not use for kernel-only builds (bsp-kernel-build), deb-only builds (bsp-deb-build), or S-series (bsp-s-series).
-version: 0.1.0
+version: 1.0.0
 license: Apache-2.0
 metadata:
   author: D-Robotics BSP Team

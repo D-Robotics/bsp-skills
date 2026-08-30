@@ -1,7 +1,7 @@
 ---
 name: bsp-bootloader-build
 description: Build the minimal boot image (miniboot / nand_disk.img) from the bootloader source using xbuild.sh lunch — covers selecting the board config and compiling uboot/miniboot for RDK X5. Use when the user wants to rebuild bootloader/miniboot, asks what nand_disk.img is, or needs a custom minimal boot firmware. 触发词:miniboot、bootloader、uboot、nand_disk.img、xbuild、最小启动镜像. Do not use for kernel or full image builds; X3 flow is not yet documented — say so instead of guessing.
-version: 0.1.0
+version: 1.0.0
 license: Apache-2.0
 metadata:
   author: D-Robotics BSP Team

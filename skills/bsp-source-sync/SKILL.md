@@ -1,7 +1,7 @@
 ---
 name: bsp-source-sync
 description: Sync the RDK Linux source tree (kernel, bootloader, hobot-* package sources) using repo and the official manifests — X5 uses D-Robotics/x5-manifest, X3 uses D-Robotics/manifest. Use when the user wants to download/checkout the BSP source, switch branches, or repo init/sync fails. 触发词:repo init、repo sync、同步源码、下载源码、manifest、源码树、develop 分支. Do not use for building after the source is ready (bsp-image-build and later skills), or for S-series source acquisition (bsp-s-series).
-version: 0.1.0
+version: 1.0.0
 license: Apache-2.0
 metadata:
   author: D-Robotics BSP Team

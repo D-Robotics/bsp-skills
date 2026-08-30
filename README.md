@@ -6,6 +6,8 @@
 
 BSP (Board Support Package) development skills for D-Robotics RDK boards. Each skill is a portable instruction set that teaches AI coding agents how to build the RDK system on a development host — cross-compilation environment, source sync, full system images, kernel/DTB/driver modules, `hobot-*` deb packages, bootloader/miniboot, and Ubuntu rootfs customization — grounded in the official build repos, not model memory.
 
+Current BSP release: **v1.0.0**.
+
 | Skill | What it does |
 |---|---|
 | `bsp-env-setup` | Prepare the host cross-compilation environment (Ubuntu, toolchain, repo, SSH key) |

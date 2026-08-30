@@ -1,7 +1,7 @@
 ---
 name: bsp-kernel-build
 description: Build the RDK Linux kernel, device tree, and driver modules with mk_kernel.sh (X5 also offers mk_kernel_rt.sh for the real-time kernel). Use when the user wants to compile the kernel, rebuild dtb, add driver modules, or needs kernel_headers for out-of-tree builds. 触发词:编译内核、内核、设备树、dtb、驱动模块、mk_kernel、实时内核、RT 内核、kernel headers. Do not use for full images (bsp-image-build), deb packaging (bsp-deb-build), or S-series (bsp-s-series).
-version: 0.1.0
+version: 1.0.0
 license: Apache-2.0
 metadata:
   author: D-Robotics BSP Team
