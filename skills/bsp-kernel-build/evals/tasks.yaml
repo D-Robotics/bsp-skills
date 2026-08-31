@@ -23,3 +23,13 @@
     behavior:
       - flags RT kernel behavior change before building
       - asks for confirmation before the long build
+
+- id: bsp-knl-004
+  dimension: routing
+  prompt: "给我做一个 X5 的正式发布镜像，包含刚改完的 DTB"
+  expect:
+    skill: bsp-kernel-build
+    behavior:
+      - recognizes that a complete release image is outside kernel-artifact scope
+      - routes to bsp-image-build before offering mk_kernel.sh
+      - does not present mk_kernel.sh as the terminal answer
