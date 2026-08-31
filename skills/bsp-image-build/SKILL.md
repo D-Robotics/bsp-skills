@@ -55,8 +55,10 @@ kernel-, bootloader-, or S-series-only work.
    `build_params/ubuntu-22.04_desktop_rdk-x5_release.conf`. Verify that exact
    file exists under the chosen checkout's `build_params/` directory.
 
-5. If a third-party deb is requested, validate that it is the intended
-   board-compatible `.deb`, then put that exact file in
+5. If a third-party deb is requested, before the costly-build confirmation
+   verify that its exact path exists and is a readable regular file. Only after
+   those checks, optionally inspect its package metadata/architecture to
+   validate board compatibility, then put that exact file in
    `<checkout>/third_packages/`. The pack process installs debs from that
    directory into the image filesystem.
 
@@ -67,10 +69,10 @@ kernel-, bootloader-, or S-series-only work.
 
 7. After that confirmation, run from the chosen checkout:
    ```bash
-   sudo ./pack_image.sh -c build_params/ubuntu-22.04_desktop_rdk-x5_release.conf
+   sudo ./pack_image.sh -c "<selected build_params file from step 4>"
    ```
-   Replace the example config with the exact config selected in step 4; never
-   silently fall back to the default config.
+   Substitute the exact selected config from step 4; never silently fall back
+   to the default config or copy a config for another variant.
 
 8. Useful options:
    - `-l` — local build: skip downloading samplefs and deb packages from the official server (use after the first full build, for fast iteration)
