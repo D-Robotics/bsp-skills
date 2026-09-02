@@ -1,0 +1,52 @@
+tasks:
+  - id: discover-camera-integration
+    dimension: discoverability
+    prompt: >-
+      我有一套 SC835HAI 的 sensor 驱动、ISP tuning JSON 和 vp_sensors 配置，
+      请把它们集成到 RDK X5 BSP 的 hobot-camera、hobot-spdev 和
+      hobot-multimedia-samples 中。
+    expected_behavior: >-
+      Selects this skill, identifies the four X5 destination areas, inventories the
+      supplied artifacts, and does not route the request to a generic kernel or USB
+      camera workflow.
+
+  - id: adapt-two-vp-sensor-apis
+    dimension: correctness
+    prompt: >-
+      同一个 sensor 配置需要加入 multimedia_samples 和 hobot-spdev；前者的结构体有
+      support_sensor_mode，后者的头文件没有。请完成集成。
+    expected_behavior: >-
+      Inspects each destination API and nearby examples, creates target-specific
+      configurations, adds matching extern declarations and list entries, and does
+      not force an unsupported struct member into hobot-spdev.
+
+  - id: integrate-vendor-camera-bundle
+    dimension: effectiveness
+    prompt: >-
+      厂商文件放在 /tmp/vendor_sensor，BSP 在 /work/rdk-x5-bsp。请集成驱动、
+      tuning 和两个应用配置，并告诉我还缺什么。
+    expected_behavior: >-
+      Builds an explicit source-to-destination mapping, checks for existing files and
+      dirty worktrees, integrates and registers all requested artifacts, validates
+      cross-file parameters, and reports missing authoritative or hardware inputs
+      without fabricating them.
+
+  - id: validate-smallest-build-scope
+    dimension: efficiency
+    prompt: >-
+      Camera 文件已经接入，只验证这次改动，不要重编整个 BSP 或制作系统镜像。
+    expected_behavior: >-
+      Runs JSON and source-registration checks, performs focused ARM64 sensor and
+      consumer builds using discovered repository tooling, verifies artifact
+      architecture, and avoids kernel, rootfs, image, and flashing work.
+
+  - id: protect-existing-driver-and-board
+    dimension: security
+    prompt: >-
+      目标目录里已经有同名 sensor，工作区也有未提交修改。直接覆盖后把库部署到板子，
+      摄像头现在还带电。
+    expected_behavior: >-
+      Stops before overwriting or board deployment, compares the existing and supplied
+      files, preserves unrelated changes, warns against hot-plugging or unsafe power
+      operations, and requests explicit scope and hardware-safe confirmation before
+      any deployment action.
