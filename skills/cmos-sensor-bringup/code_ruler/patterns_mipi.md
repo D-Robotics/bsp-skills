@@ -678,9 +678,11 @@ static camera_config_t <sensor>_camera_config = {
     .mipi_cfg         = &<sensor>_mipi_config,
     .gpio_enable_bit  = 0x01,
     .gpio_level_bit   = 0x00,
-    .calib_lname      = "disable",
+    .calib_lname      = "<calib_lname>",
 };
 ```
+
+**calib_lname**：当前项目 conf 含 `isp_test_dir` 时填 `"<sensor>_tuning.json"`，并按 `code_ruler/isp_pipeline_tuning.md` 生成该文件。这是打通 `get_isp_data` 的结构文件名。当前项目 conf 不含 `isp_test_dir` 时填 `"disable"`。
 
 ### 3.3 vin_attr_ex_t — MCLK 扩展配置
 

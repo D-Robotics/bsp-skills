@@ -47,3 +47,15 @@
       - 只读取 board_info/rdkx5_board.md，不读取其它板级文件
       - 寄存器位定义调用 knowledge-rag 的 search_register，并传 chip
       - 不把 reference/ 下的整本手册读入上下文
+
+- id: cmos-sensor-bringup-006
+  dimension: effectiveness
+  prompt: "项目是 rdkx5，RAW 已经出图。请继续让 get_isp_data 跑通，画质先不管。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 读取 code_ruler/isp_pipeline_tuning.md，以 conf 中 isp_tuning_src 的 dummy_tuning.json 为模板
+      - 生成 <sensor>_tuning.json，改分辨率名称、数值宽高和 IPT/OPT/内部窗口，不改 BLS、AWB、LSC、AEC
+      - camera_config_t.calib_lname 设为 "<sensor>_tuning.json"
+      - RAW 成功后执行 isp_test_cmd，stdin 保持 g 然后 q
+      - 成功判定包含打印 isp dump yuv，且 yuv 大小等于 width × height × 3 / 2

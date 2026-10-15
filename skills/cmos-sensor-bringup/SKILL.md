@@ -1,11 +1,11 @@
 ---
 name: cmos-sensor-bringup
 description: >-
-  点亮 SerDes camera 和 direct MIPI camera 的新 sensor bring-up：收集项目与接入信息，按规律提取参数、生成驱动代码，再编译推送到板端验证。
-  触发词: 调试新 sensor、$cmos-sensor-bringup、点亮 camera、mipi_index、link_index、serdes camera、direct mipi camera。
+  点亮 SerDes camera 和 direct MIPI camera 的新 sensor bring-up：收集项目与接入信息，按规律提取参数、生成驱动代码，再编译推送到板端验证。项目 conf 含 isp_test_dir 时，RAW（get_vin_data）通过后继续跑 get_isp_data。
+  触发词: 调试新 sensor、$cmos-sensor-bringup、点亮 camera、mipi_index、link_index、serdes camera、direct mipi camera、get_isp_data。
   不要用于：BSP 源码同步、整机镜像或与本次 sensor 无关的编译；寄存器位定义查询交给 knowledge-rag。
 metadata:
-  version: "1.0.0"
+  version: "1.1.1"
   tags: [sensor, serdes, mipi, bring-up]
 ---
 
@@ -13,7 +13,7 @@ metadata:
 
 ## Purpose
 
-点亮一颗新 sensor。从用户给出的项目、文档和接入位置出发，按规律提取参数、改驱动、编译推送到板端，并在验证失败时按经验文件排查。入口是本 skill，不是计划模式。
+点亮一颗新 sensor。从用户给出的项目、文档和接入位置出发，按规律提取参数、改驱动、编译推送到板端。先验证 RAW（get_vin_data）。当前项目 conf 含 `isp_test_dir` 时，RAW 通过后继续验证 ISP（get_isp_data）。验证失败时按经验文件排查。入口是本 skill，不是计划模式。
 
 ## When to use
 
@@ -33,7 +33,7 @@ Do not use:
 
 ### 可参考文件
 
-调试时只能参考：`code_ruler/patterns_serdes.md` 或 `code_ruler/patterns_mipi.md`（根据 sensor 类型）、`board_info/<board>_board.md`（根据 `project_info/<项目名>_project.conf` 中的 board 值加载对应板级文件，如 board=x5_evb→x5_evb_board.md、board=rdkx5→rdkx5_board.md、board=s100_6v→s100_6v_board.md、board=s100_12v→s100_12v_board.md、board=s600→s600_board.md；只加载当前板，不加载其它板；若对应文件不存在则停下报错给用户，告知缺失的文件名与 board 值，不得静默跳过继续执行）、`experience/sensor-debug-experience-serdes.md` 或 `experience/sensor-debug-experience-mipi.md`（根据 sensor 类型）。寄存器位定义只调用 knowledge-rag 的 `search_register`，不读取 `reference/` 下的 PDF。
+调试时只能参考：`code_ruler/patterns_serdes.md` 或 `code_ruler/patterns_mipi.md`（根据 sensor 类型）、`board_info/<board>_board.md`（根据 `project_info/<项目名>_project.conf` 中的 board 值加载对应板级文件，如 board=x5_evb→x5_evb_board.md、board=rdkx5→rdkx5_board.md、board=s100_6v→s100_6v_board.md、board=s100_12v→s100_12v_board.md、board=s600→s600_board.md；只加载当前板，不加载其它板；若对应文件不存在则停下报错给用户，告知缺失的文件名与 board 值，不得静默跳过继续执行）、`experience/sensor-debug-experience-serdes.md` 或 `experience/sensor-debug-experience-mipi.md`（根据 sensor 类型）。当前项目 conf 含 `isp_test_dir` 时，还须读取 `code_ruler/isp_pipeline_tuning.md`。寄存器位定义只调用 knowledge-rag 的 `search_register`，不读取 `reference/` 下的 PDF。
 
 ### 前置
 
@@ -92,7 +92,7 @@ Do not use:
 - SerDes Camera → 读取 `code_ruler/patterns_serdes.md`
 - Direct MIPI Camera → 读取 `code_ruler/patterns_mipi.md`
 
-生成代码的唯一依据是 `patterns_<类型>.md` 的代码模板 + 当前 sensor 手册，其它一律不作数。按以下顺序完成（缺一不可）：
+生成驱动代码的依据是 `patterns_<类型>.md` 的代码模板 + 当前 sensor 手册。当前项目 conf 含 `isp_test_dir` 时，tuning JSON 另以 `code_ruler/isp_pipeline_tuning.md` 为依据。除此之外一律不作数。按以下顺序完成（缺一不可）：
 
 1. **探测驱动库是否已存在**：在项目源码中检索该 sensor 是否已有驱动库（按规律文件给出的驱动库文件命名/路径特征检索）。本步直接判定，不询问用户：
    - 已存在该 sensor 的驱动库 → 往现有驱动中添加新模组枚举/emode 条目（参考 SerDes §12 / §13 的「添加」位置），不要再询问用户确认，不要新建整库
@@ -104,6 +104,7 @@ Do not use:
    - **已定值即冻结**：第 1 步参数清单中已定取值的参数（含规律强制取值、确认判据为「不确认」直接填值的），本步取值冻结，只填模板不问不疑。驱动既有实现里的分支/功能位、兄弟 sensor 写法、文档措辞的字面贴近、模板省略号旁看似更贴切的写法，都不得构成重新询问、让用户二选一或推翻的理由；「稳妥起见」不构成询问理由，模板已写明却仍问 = 违规。驱动里出现而 patterns 模板没列的分支/功能位（如 1024）是历史遗留，一律忽略，按第 1 步值填。仅当第 1 步取值本身违反提取规律时才停下，且汇报「第 1 步取错了」，而非「要不要换一个值」。
    - **唯一允许问用户的情形**：该参数在第 1 步没取到值，且 patterns 模板也未写明取值——此时按第 1 步第 4 条规则生成确认清单。
    - **二阶段确认禁令**：本阶段绝对禁止向用户确认「提取参数」阶段已闭环/已呈现确认的参数（含 gain_lut 形态）。
+4. **生成 ISP 建链 tuning**：仅当当前项目 conf 含 `isp_test_dir`。读取 `code_ruler/isp_pipeline_tuning.md` 并按其生成 `<sensor>_tuning.json`，同时把本次 `camera_config_t.calib_lname` 设为 `"<sensor>_tuning.json"`。conf 不含 `isp_test_dir` 时不生成该文件，`calib_lname` 按 patterns 原文。
 
 文件路径 = 项目根目录 + `project_info/<项目名>_project.conf` 中的相对路径 + 具体文件路径。填完后输出新 sensor 在 `vp_sensor_config_list` 中的序号（camera_index），供后续测试使用。
 
@@ -125,32 +126,59 @@ Do not use:
 
 正常完成时不必逐步询问「是否继续」，直接进入下一步。
 
+当前项目 conf 含 `isp_test_dir` 时，安装完成后检查板端 `isp_tuning_board`（`{sensor}` 换成 `camera_config.name`）。文件不存在则把源码中的 `<sensor>_tuning.json` 拷到该路径，权限 `0644`。源码 JSON 不存在则回到第 2 步第 4 条生成，不得跳过 ISP。不得把本次 IP 写回配置文件。
+
 ### 4. 验证测试
+
+分两段。当前项目 conf 含 `isp_test_dir` 时，RAW 与 ISP 都通过才算本次验证通过。不含 `isp_test_dir` 时只做 RAW，做完告知用户该板未配置 ISP 测试，不得猜测 `get_isp_data` 的路径。
+
+#### 4.1 RAW（get_vin_data）
 
 ssh 登录板端，进入 test_dir，按顺序执行 test_clean、test_build、test_prepare 中的全部指令、test_cmd。test_cmd 中的占位符按 conf 文件中 test_cmd 行上方的注释规则替换。四步必须逐一执行，不得跳过或合并。
 
 **test_cmd 形式禁令**：test_cmd 仅替换占位符，其余原样执行；禁止删改 stdin 喂入（如 `printf 'l\nq\n' |`），禁止与 dmesg/logcat 合并进同一命令。查日志在 test_cmd 跑完后单独执行。
 
-**测试等待时长**：test_cmd 执行后等待 10 秒，10 秒内未自行退出 → kill 掉测试进程，判定本次测试失败，进入第 5 步。测试成功则告知用户成功并停止，测试失败则进入下一步。
+**测试等待时长**：test_cmd 执行后等待 10 秒，10 秒内未自行退出 → kill 掉测试进程，判定 RAW 失败，进入第 5 步。RAW 失败不得开始 ISP。RAW 成功后：conf 含 `isp_test_dir` 则继续第 4.2 节；不含则告知 RAW 已通过、本板未配置 ISP 测试，然后停止。
+
+#### 4.2 ISP（get_isp_data）
+
+仅当 conf 含 `isp_test_dir`。进入 isp_test_dir，按顺序执行 isp_test_clean、isp_test_build、isp_test_prepare、isp_test_cmd。占位符规则与 test_cmd 相同。
+
+**isp_test_cmd 形式禁令**：仅替换占位符，其余原样执行；禁止删改 stdin 喂入（如 `printf 'g\nq\n' |`），禁止与 dmesg/logcat 合并进同一命令。查日志在 isp_test_cmd 跑完后单独执行。
+
+**测试等待时长**：等待 conf 中的 `isp_test_wait_sec` 秒（未写则 30 秒）。时限内进程自行退出后再判定；超时则 kill 掉测试进程，判定 ISP 失败，进入第 5 步。
+
+成功须同时满足以下三条，缺一条即 ISP 失败：
+
+1. 打印含 `isp dump yuv {width}x{height}`，宽高为参数清单已定的 width、height。
+2. 生成的 yuv 文件大小等于 `width × height × 3 / 2`。
+3. dmesg 或 logcat 中 `sensor_cali_name` 等于 `<sensor>_tuning.json`。
+
+三条都满足则告知用户 RAW 与 ISP 都已通过并停止。该 tuning 只用于建链，BLS、AWB、LSC、AEC 仍是模板数据，不能当作最终画质版本。
 
 ### 5. 问题修复
 
-如果验证测试未通过（如 i2c 不通、画面异常等）。先从 3 种日志来源（测试打印、logcat、dmesg）分析出具体的异常点，然后到对应的 experience 文件中匹配触发特征进入入口检查项，按检查项的合法去向逐步排查、按到达的修复点修改。不允许盲目分析问题原因，不允许跳过，不允许自创排查路线或忽略。
+先区分失败段。
+
+- **RAW 失败**（第 4.1 节）：按下面的 experience 流程排查。
+- **ISP 失败**（第 4.2 节）：只读 `code_ruler/isp_pipeline_tuning.md` 的「ISP 失败时的检查项」，按其中的检查项名排查。不得改 BLS、AWB、LSC、AEC。三项都与期望一致而测试仍失败时，结论为经验未覆盖，停下问用户。
+
+RAW 失败时，先从 3 种日志来源（测试打印、logcat、dmesg）分析出具体的异常点，然后到对应的 experience 文件中匹配触发特征进入入口检查项，按检查项的合法去向逐步排查、按到达的修复点修改。不允许盲目分析问题原因，不允许跳过，不允许自创排查路线或忽略。ISP 失败段不读 experience 文件。
 
 排查必须分阶段执行，检查与修改严格分离：
 
 1. **检查阶段**：只做检查，只汇报检查结果（实际值 vs 期望值 / 通或不通），此阶段严禁提出任何修改。检查阶段最高频违规：因一次测量读到的寄存器值含其他字段，就擅自把排查对象从当前检查项换成「那个看似更可疑的字段」。严禁。检查项的对象由 experience 流程固定，测量值只填「实际值」，不改对象；「我觉得别的字段更像根因」不是换方向的理由——按合法去向走，或填「经验未覆盖」停下问用户。
 2. **匹配阶段**：基于检查项的汇报结论，按合法去向跳到对应的下一检查项或修复点。
-3. **修改阶段**：提出修改前，必须标注出处——对应 experience 文件中到达该修复点的检查项名（判定型叶子项）或轮流候选检查项名（轮流型过则止的候选），标注不出来则属于自创路线，不得提出。
+3. **修改阶段**：提出修改前，必须标注出处——RAW 失败标 experience 文件中的检查项名，ISP 失败标 `isp_pipeline_tuning.md` 中的检查项名。标注不出来则属于自创路线，不得提出。
 
-排查中一旦出现「可能/推测/也许/我觉得」等措辞，立即停下来，退回 experience 按合法去向走，找不到就不继续。
+排查中一旦出现「可能/推测/也许/我觉得」等措辞，立即停下来，RAW 失败退回 experience、ISP 失败退回 `isp_pipeline_tuning.md` 按合法去向走，找不到就不继续。
 
 根据第 1 步判断的 sensor 类型查询对应经验文件：
 
 - SerDes Camera → `experience/sensor-debug-experience-serdes.md`
 - Direct MIPI Camera → `experience/sensor-debug-experience-mipi.md`
 
-给出修复代码，重新编译推送安装测试。然后回到第 4 步重新验证，循环执行第 4、第 5 步直到验证通过。
+给出修复代码，重新编译推送安装测试。RAW 失败修复后从第 4.1 节重新验证。ISP 失败修复后从第 4.2 节重新验证；若修复改了驱动或 tuning 的加载路径，则从第 4.1 节重新验证。循环执行第 4、第 5 步，直到当前项目要求的验证段都通过。
 
 ## Safety
 
@@ -159,6 +187,6 @@ ssh 登录板端，进入 test_dir，按顺序执行 test_clean、test_build、t
 - 调试与排查时禁止查询项目 git 历史：不得执行 `git log`、`git show`、`git blame`、`git diff <commit>`、`git log -p` 等任何读取历史 commit 的命令，也不得通过其它方式检索历史提交信息。规律文件的条款是当前生效规则，以规律文件原文为准，不得用「历史 commit 曾经怎么写」来佐证、推翻或绕过现行规律。规律文件中亦不再保留任何 commit hash / sensor 名 / 出处图片等来源标注。
 - 参数值只取 sensor 文档和 patterns 中写明的内容。禁止编造、猜测或填充默认值。
 - build、deploy、install 或测试返回非零退出码或明显错误时停下，向用户汇报，等待处理。不要自行换 IP 以外的配置项，也不要把本次 IP 写回配置文件。
-- 检查阶段只汇报实测值，不提出修改。修改必须能标出 experience 文件中的检查项名。
+- 检查阶段只汇报实测值，不提出修改。RAW 修复必须标出 experience 文件中的检查项名。ISP 修复必须标出 `isp_pipeline_tuning.md` 中的检查项名。
 
-> Sources: `code_ruler/patterns_serdes.md`、`code_ruler/patterns_mipi.md`、`experience/sensor-debug-experience-serdes.md`、`experience/sensor-debug-experience-mipi.md`、`project_info/*_project.conf`、`board_info/*_board.md`、`embedded_common/embedded_rulers.md`。寄存器手册留在使用者本机，经 knowledge-rag 检索，不随本 skill 发布。
+> Sources: `code_ruler/patterns_serdes.md`、`code_ruler/patterns_mipi.md`、`code_ruler/isp_pipeline_tuning.md`、`experience/sensor-debug-experience-serdes.md`、`experience/sensor-debug-experience-mipi.md`、`project_info/*_project.conf`、`board_info/*_board.md`、`embedded_common/embedded_rulers.md`。寄存器手册留在使用者本机，经 knowledge-rag 检索，不随本 skill 发布。

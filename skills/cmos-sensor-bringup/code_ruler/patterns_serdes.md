@@ -527,6 +527,7 @@ static camera_config_t <sensor>std_camera_config = {
 };
 ```
 
+- 当前项目 conf 含 `isp_test_dir` 时，`.calib_lname` 改为 `"<sensor>_tuning.json"`，并按 `code_ruler/isp_pipeline_tuning.md` 生成该 JSON。此值覆盖 §0.2.2 的 `"disable"` 或标定 `.so` 名，只用于打通 `get_isp_data`。conf 不含 `isp_test_dir` 时仍按 §0.2.2。
 - ⚠️ `.addr`、`.eeprom_addr`、`.serial_addr` 均为 7-bit；勿混用
 - `.mipi_cfg = NULL` 是 SerDes 固定写法（与 MIPI camera 不同，MIPI camera 在此填 mipi_config_t）
 
