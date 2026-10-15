@@ -59,3 +59,24 @@
       - camera_config_t.calib_lname 设为 "<sensor>_tuning.json"
       - RAW 成功后执行 isp_test_cmd，stdin 保持 g 然后 q
       - 成功判定包含打印 isp dump yuv，且 yuv 大小等于 width × height × 3 / 2
+
+- id: cmos-sensor-bringup-007
+  dimension: correctness
+  prompt: "项目是 rdkx5，模组自带 24MHz 晶振。i2cdetect 扫不到 sensor，请排查。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 不修改 x5-rdk.dtsi
+      - 不写 snrclk_freq 或 snrclk_en
+      - 手册只写 INCK=24MHz 时不得据此改 DTS
+
+- id: cmos-sensor-bringup-008
+  dimension: effectiveness
+  prompt: "项目是 rdkx5，sensor 需要 SoC 提供 24MHz MCLK。硬件接上后 i2cdetect 扫描不到，mipi_index=0。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 只改 mipi_host0，补上 pinctrl_sensor0_mclk、lsio_gpio0_24、snrclk-idx=0
+      - 不改 mipi_host1、mipi_host2、mipi_host3
+      - 在 rdk-x5-bsp 根目录执行 mk_kernel.sh 与 mk_debs.sh hobot-dtb
+      - 安装 dtb 和重启前先向用户确认

@@ -23,6 +23,7 @@
 - 只改 tuning 里的分辨率字符串、漏掉数值窗口，ISP 仍按模板分辨率建链。
 - 把 dummy 的 BLS/AWB/LSC/AEC 当成最终画质参数。
 - 在未配置 `isp_test_dir` 的板上猜测 `get_isp_data` 路径。
+- 模组自带 24MHz 时仍改 `x5-rdk.dtsi` 或打开 `snrclk_en`，会切走板载晶振。
 
 ## Sources
 

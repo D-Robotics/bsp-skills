@@ -77,15 +77,56 @@ description: Direct MIPI Camera（无 Serializer/Deserializer）调试经验。�
 
 ### MCLK 配置检查
 
-* 动作：检查 MCLK 是否配置正确、硬件是否生效
-* 汇报：结论=未生效 / 生效
+* 动作：先判定时钟来源，再查配置是否生效。判定只认这两类事实：用户明确说明模组或转接板自带 24MHz；或 `board_info/rdkx5_board.md` 已列的自带晶振模组（22pin 的 IMX219、IMX477、OV5647，以及 22pin 转 24pin 自带 24M 晶振转接板上的 SC230AI、SC132gs、IMX415）。sensor 手册只写 INCK=24MHz 不算来源。
+* 汇报：结论=自带晶振 / SoC供钟 / 来源不明 / 未生效 / 生效
 * 合法去向：
-  * 未生效 → 提修改（修正 MCLK 配置，改后回第4步重验）
-  * 生效 → 手动辅助上电复测
+  * 自带晶振（rdkx5，模组或转接板自带 24MHz）→ 模组自带 MCLK 上电复测
+  * SoC供钟（rdkx5，必须由 SoC 提供 MCLK，且 i2cdetect 扫描不到外设）→ SoC MCLK DTS 检查
+  * 来源不明 → 停下问用户。问清前不改 `x5-rdk.dtsi`，不写 `snrclk_en`
+  * 未生效（非 rdkx5）→ 提修改（修正 MCLK 配置，改后回第4步重验）
+  * 生效（非 rdkx5）→ 手动辅助上电复测
+
+### 模组自带 MCLK 上电复测
+
+* 动作：只做 reset GPIO 释放，不改 DTS，不写 `snrclk_freq` / `snrclk_en`。`RESET_PIN` 来自 `board_info/<board>_board.md` 中该 mipi_host 的 reset 引脚。执行后用 i2cdetect 复测该 sensor 7bit 地址。
+  ```sh
+  if [ ! -d "/sys/class/gpio/gpio${RESET_PIN}" ]; then
+      echo "$RESET_PIN" > /sys/class/gpio/export
+  fi
+
+  echo out > /sys/class/gpio/gpio${RESET_PIN}/direction
+  echo 0 > /sys/class/gpio/gpio${RESET_PIN}/value
+  sleep 0.1
+  echo 1 > /sys/class/gpio/gpio${RESET_PIN}/value
+  ```
+* 汇报：结论=探测到 / 未探测到
+* 合法去向：
+  * 探测到 → 报告成功并停
+  * 未探测到 → I2C bus/addr 配置检查
+
+### SoC MCLK DTS 检查
+
+* 动作：只读本次接入的那一个 `mipi_host`（用户给出的 mipi_index）。对照 `board_info/rdkx5_board.md` 例外表，核对该节点是否已有 `pinctrl-names = "enable", "disable"`、`pinctrl-0`、`pinctrl-1`、`snrclk-idx`。不读、不改其它 host。
+* 汇报：实际/期望=该节点现有四项 / 例外表中该 host 的四项；结论=已一致 / 未一致
+* 合法去向：
+  * 已一致 → SoC MCLK sysfs 复测
+  * 未一致 → 提修改：只给这一路补上例外表中的四项。然后在 `rdk-x5-bsp` 根目录执行 `sudo ./mk_kernel.sh` 与 `sudo ./mk_debs.sh hobot-dtb`。安装该 deb 与重启前必须先向用户确认，确认前不安装、不重启。新 DTB 生效后再进入 SoC MCLK sysfs 复测
+
+### SoC MCLK sysfs 复测
+
+* 动作：只对已改的那一路写 sysfs，频率用参数清单里已定的 MCLK（24MHz 写 24000000）。写完后用 i2cdetect 复测该 sensor 7bit 地址。
+  ```sh
+  echo "$MCLK" > /sys/class/vps/mipi_host${MIPI_HOST}/param/snrclk_freq
+  echo 1 > /sys/class/vps/mipi_host${MIPI_HOST}/param/snrclk_en
+  ```
+* 汇报：结论=探测到 / 未探测到
+* 合法去向：
+  * 探测到 → 报告成功并停
+  * 未探测到 → I2C bus/addr 配置检查
 
 ### 手动辅助上电复测
 
-* 动作：在板端手动执行辅助上电，使 sensor 进入可被 I2C 探测的状态，执行后再用 i2cdetect 复测该 sensor 7bit 地址。需先确定 3 个变量：
+* 动作：非 rdkx5 板。在板端手动执行辅助上电，使 sensor 进入可被 I2C 探测的状态，执行后再用 i2cdetect 复测该 sensor 7bit 地址。需先确定 3 个变量：
   - `MCLK`：MCLK 频率(Hz)，来自手册提取（如 IMX415 INCK=24MHz → 24000000）
   - `RESET_PIN`：reset GPIO 编号，来自板端约束 `board_info/<board>_board.md` 中该 mipi_host 对应的 reset 引脚（如 X5_EVB mipi_host0 → GPIO 498）
   - `MIPI_HOST`：MIPI host 号，来自用户输入的 mipi_index（如 mipi_index=0 → 0）
