@@ -1,0 +1,32 @@
+# Skill Card: cmos-sensor-bringup
+
+| Field | Value |
+|---|---|
+| name | cmos-sensor-bringup |
+| owner | sensor adapter workflow |
+| license | 本仓库未附 LICENSE，frontmatter 不声明 Apache-2.0 |
+| kind | workflow |
+| riskLevel | high — 会修改项目源码，并编译、scp/ssh 到板端安装和测试 |
+| platforms | rdkx5、x5_evb、S100（6v/12v）、S600 |
+
+## Use case
+
+用户要调试一颗新的 SerDes camera 或 direct MIPI camera，从收集项目信息到板端验证。
+
+## Known risks
+
+- 入口 6 条未齐就改代码或推板，会改错仓库或打到错误板子。
+- S100 对应两份 conf（s100_6v / s100_12v）。未让用户选定就读取，会用错板型。
+- 参数不在 sensor 文档或 patterns 白名单内时填默认值，会把错误寄存器配置写进驱动。
+- 扫描 `out/`、`prebuilts/` 会把构建产物当成已有驱动。
+- 验证失败后不按 experience 的检查项走，会改到与故障无关的寄存器。
+
+## Sources
+
+- `code_ruler/patterns_serdes.md`
+- `code_ruler/patterns_mipi.md`
+- `experience/sensor-debug-experience-serdes.md`
+- `experience/sensor-debug-experience-mipi.md`
+- `project_info/*_project.conf`
+- `board_info/*_board.md`
+- `embedded_common/embedded_rulers.md`

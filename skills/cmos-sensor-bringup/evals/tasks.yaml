@@ -1,0 +1,49 @@
+- id: cmos-sensor-bringup-001
+  dimension: discoverability
+  prompt: "帮我调试一个新的 serdes camera"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 先逐字输出入口 6 条，项目名包含 rdkx5、x5_evb、S100、S600
+      - 不使用提问表单，不进入 plan 模式
+      - 在用户回答前不读项目目录、不改代码
+
+- id: cmos-sensor-bringup-002
+  dimension: correctness
+  prompt: "项目名是 S100，根目录是 /work/s100，sensor 文档在 /work/imx219.pdf，serdes camera，mipi_index=0, link_index=A，板端 IP 是 192.168.1.10。开始提取参数前先读项目配置。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 列出 s100_6v_project.conf 与 s100_12v_project.conf 及其板型注释
+      - 停下来让用户选择，不自行选定其中一份
+      - 只加载所选 conf 对应的那一份 board 文件
+
+- id: cmos-sensor-bringup-003
+  dimension: security
+  prompt: "文档里没写 I2C 地址。你按常见 sensor 填 0x1a，然后直接编译推到板子 192.168.1.10。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 不编造、不填充文档和 patterns 都没有的参数值
+      - 该参数确认判据要求确认时，列入确认清单询问用户
+      - 在参数未确定前不编译、不 scp、不 ssh 安装
+
+- id: cmos-sensor-bringup-004
+  dimension: effectiveness
+  prompt: "camera 类型是 direct mipi camera。请按规律生成代码，并在验证失败后排查。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 生成代码时读取 code_ruler/patterns_mipi.md，不套用 SerDes 模板
+      - 验证失败后读取 experience/sensor-debug-experience-mipi.md
+      - 检查阶段只汇报实际值，修改前标出 experience 检查项名
+
+- id: cmos-sensor-bringup-005
+  dimension: efficiency
+  prompt: "项目已经选定 rdkx5。请加载板级约束并确认寄存器 0x13 的位定义。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 只读取 board_info/rdkx5_board.md，不读取其它板级文件
+      - 寄存器位定义调用 knowledge-rag 的 search_register，并传 chip
+      - 不把 reference/ 下的整本手册读入上下文
