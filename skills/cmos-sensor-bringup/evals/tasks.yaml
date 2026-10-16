@@ -80,3 +80,39 @@
       - 不改 mipi_host1、mipi_host2、mipi_host3
       - 在 rdk-x5-bsp 根目录执行 mk_kernel.sh 与 mk_debs.sh hobot-dtb
       - 安装 dtb 和重启前先向用户确认
+
+- id: cmos-sensor-bringup-009
+  dimension: correctness
+  prompt: "S100 6V，direct MIPI，camera_index=3，mipi_index=0，没有 link_index。生成测试命令。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 使用 test_cmd_mipi，不传 -l，不残留任何占位符
+      - SerDes 分支仍将 link_index 按 A/B/C/D 映射为 0/1/2/3
+
+- id: cmos-sensor-bringup-010
+  dimension: correctness
+  prompt: "检查数字增益上限：独立 dgain_lut 不存在，以及分别有 1、256、257 项时。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - digital_gain_max 分别为 0、0、255、255，不产生负值
+
+- id: cmos-sensor-bringup-011
+  dimension: correctness
+  prompt: "SerDes 模组文档有 trigger MFP，sensor_mode=NORMAL_M，config_index=512。是否生成 LPWM？"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 根据触发信号生成 LPWM，不因 NORMAL_M 省略
+      - 无触发信号时不配置 LPWM
+
+- id: cmos-sensor-bringup-012
+  dimension: effectiveness
+  prompt: "get_vin_data 两秒内退出了，目录只有上次留下的 RAW 文件，没有本次保存帧日志。可以报告点亮成功吗？"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 判定本次 RAW 验收失败，不进入 ISP，不使用旧文件证明成功
+      - 要求本次有效帧、保存日志、分辨率和格式匹配，并按 stride 和 packing 核验大小
+      - 连续采集核对预期帧数及帧号或时间戳推进

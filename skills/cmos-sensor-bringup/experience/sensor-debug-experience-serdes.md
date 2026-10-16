@@ -131,6 +131,3 @@ description: SerDes Camera（GMSL Serializer/Deserializer 链路）调试经验�
   * 改为平台支持速率 → 提修改（emode L 字段改值或去 L，同步改 emode 枚举名/emode_data/sensor_emode 三处引用，回第4步重验）
   * 保持当前速率 → 提修改（serial_links[该serial].select[] 加当前速率，影响所有该型号模组）
   * 经验未覆盖 → 停下问用户
-
-
-

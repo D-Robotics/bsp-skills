@@ -4,8 +4,10 @@ description: >-
   点亮 SerDes camera 和 direct MIPI camera 的新 sensor bring-up：收集项目与接入信息，按规律提取参数、生成驱动代码，再编译推送到板端验证。项目 conf 含 isp_test_dir 时，RAW（get_vin_data）通过后继续跑 get_isp_data。
   触发词: 调试新 sensor、$cmos-sensor-bringup、点亮 camera、mipi_index、link_index、serdes camera、direct mipi camera、get_isp_data。
   不要用于：BSP 源码同步、整机镜像或与本次 sensor 无关的编译；寄存器位定义查询交给 knowledge-rag。
+version: "1.1.1"
+license: Apache-2.0
 metadata:
-  version: "1.1.1"
+  content-license: CC-BY-4.0
   tags: [sensor, serdes, mipi, bring-up]
 ---
 
@@ -134,11 +136,20 @@ Do not use:
 
 #### 4.1 RAW（get_vin_data）
 
-ssh 登录板端，进入 test_dir，按顺序执行 test_clean、test_build、test_prepare 中的全部指令、test_cmd。test_cmd 中的占位符按 conf 文件中 test_cmd 行上方的注释规则替换。四步必须逐一执行，不得跳过或合并。
+ssh 登录板端，进入 test_dir，按顺序执行 test_clean、test_build、test_prepare 中的全部指令、test_cmd。若 conf 含 `test_cmd_mipi` / `test_cmd_serdes`，按入口 camera 类型选取对应命令；否则使用 `test_cmd`。占位符按 conf 中注释规则替换，执行前检查不得残留 `{...}` 占位符。四步按配置逐一执行；conf 未提供 test_build 时跳过编译，不自行补命令。
 
 **test_cmd 形式禁令**：test_cmd 仅替换占位符，其余原样执行；禁止删改 stdin 喂入（如 `printf 'l\nq\n' |`），禁止与 dmesg/logcat 合并进同一命令。查日志在 test_cmd 跑完后单独执行。
 
-**测试等待时长**：test_cmd 执行后等待 10 秒，10 秒内未自行退出 → kill 掉测试进程，判定 RAW 失败，进入第 5 步。RAW 失败不得开始 ISP。RAW 成功后：conf 含 `isp_test_dir` 则继续第 4.2 节；不含则告知 RAW 已通过、本板未配置 ISP 测试，然后停止。
+**测试等待时长**：test_cmd 执行后等待 10 秒，10 秒内未自行退出 → kill 掉测试进程，判定 RAW 失败，进入第 5 步。RAW 失败不得开始 ISP。正常退出本身不代表 RAW 成功，须同时满足下列验收条件。RAW 成功后：conf 含 `isp_test_dir` 则继续第 4.2 节；不含则告知 RAW 已通过、本板未配置 ISP 测试，然后停止。
+
+**RAW 成功验收（全部满足）**：
+
+1. 测试前记录运行起始时间及输出文件清单；将旧帧文件移到独立备份目录或使用可核对的本次新文件，禁止用旧输出验收。
+2. 测试正常退出，日志无采集错误，并有本次成功获取和保存帧的记录。快速退出但没有有效帧，仍判失败。
+3. 本次帧文件存在且非空；采集日志中的分辨率、格式与当前配置一致。按实际 stride、packing、plane 布局核验文件大小，不统一套用 width × height × bitwidth / 8。无法确定布局时报告证据不足，不宣告成功。
+4. 连续采集时核对成功保存的帧数与测试程序该操作的预期帧数一致，并核对帧号或时间戳推进。预期帧数须来自当前测试程序说明或实现，不猜测。
+
+任一验收条件不满足即 RAW 失败，记录日志和文件证据后进入第 5 步，不进入 ISP；证据不足时先补齐证据。最终报告包含本次文件、帧数、分辨率、格式及大小核验结果。
 
 #### 4.2 ISP（get_isp_data）
 

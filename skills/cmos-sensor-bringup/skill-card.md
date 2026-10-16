@@ -4,7 +4,7 @@
 |---|---|
 | name | cmos-sensor-bringup |
 | owner | sensor adapter workflow |
-| license | 本仓库未附 LICENSE，frontmatter 不声明 Apache-2.0 |
+| license | Apache-2.0（代码）；CC-BY-4.0（文档），遵循仓库许可证规则 |
 | kind | workflow |
 | riskLevel | high — 会修改项目源码，并编译、scp/ssh 到板端安装和测试 |
 | platforms | rdkx5、x5_evb、S100（6v/12v）、S600 |
