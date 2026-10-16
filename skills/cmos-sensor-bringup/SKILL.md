@@ -4,7 +4,7 @@ description: >-
   点亮 SerDes camera 和 direct MIPI camera 的新 sensor bring-up：收集项目与接入信息，按规律提取参数、生成驱动代码，再编译推送到板端验证。项目 conf 含 isp_test_dir 时，RAW（get_vin_data）通过后继续跑 get_isp_data。
   触发词: 调试新 sensor、$cmos-sensor-bringup、点亮 camera、mipi_index、link_index、serdes camera、direct mipi camera、get_isp_data。
   不要用于：BSP 源码同步、整机镜像或与本次 sensor 无关的编译；寄存器位定义查询交给 knowledge-rag。
-version: "1.1.1"
+version: "1.0.1"
 license: Apache-2.0
 metadata:
   content-license: CC-BY-4.0

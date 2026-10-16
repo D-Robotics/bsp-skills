@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.1.0 - 2026-10-16
+## v1.0.1 - 2026-10-16
 
 - Add cmos-sensor-bringup for direct MIPI and SerDes camera workflows.
 - Require fresh capture evidence for RAW validation and cover gain, command routing, and trigger configuration edge cases.

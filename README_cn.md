@@ -6,7 +6,7 @@
 
 面向 D-Robotics RDK 板卡的 BSP（板级支持包）开发 Skills。每个 Skill 是一组可移植的指令文件，教 AI 编程助手在开发主机上完成 RDK 系统构建——交叉编译环境、源码同步、整机镜像、内核/设备树/驱动模块、`hobot-*` deb 包、bootloader/miniboot、Ubuntu 根文件系统定制——全部基于官方构建仓库，而非模型记忆。
 
-当前 BSP 发布版本：**v1.1.0**。
+当前 BSP 发布版本：**v1.0.1**。
 
 | Skill | 做什么 |
 |---|---|
