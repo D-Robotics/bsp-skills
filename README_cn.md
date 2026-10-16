@@ -6,7 +6,7 @@
 
 面向 D-Robotics RDK 板卡的 BSP（板级支持包）开发 Skills。每个 Skill 是一组可移植的指令文件，教 AI 编程助手在开发主机上完成 RDK 系统构建——交叉编译环境、源码同步、整机镜像、内核/设备树/驱动模块、`hobot-*` deb 包、bootloader/miniboot、Ubuntu 根文件系统定制——全部基于官方构建仓库，而非模型记忆。
 
-当前 BSP 发布版本：**v1.0.0**。
+当前 BSP 发布版本：**v1.1.0**。
 
 | Skill | 做什么 |
 |---|---|
@@ -18,6 +18,7 @@
 | `bsp-bootloader-build` | 编译 miniboot（`xbuild.sh lunch`，X5 已文档化） |
 | `bsp-rootfs-custom` | 制作与定制 Ubuntu 根文件系统（samplefs、debootstrap/chroot） |
 | `bsp-s-series` | S100/S600 BSP 源码获取与构建入口 |
+| `cmos-sensor-bringup` | 点亮 direct MIPI / SerDes 摄像头：板型配置、驱动生成及基于出帧证据的 RAW/ISP 验证 |
 
 ## 支持的平台
 
@@ -27,7 +28,7 @@
 | RDK X3 | [`manifest`](https://github.com/D-Robotics/manifest) | [`rdk-gen`](https://github.com/D-Robotics/rdk-gen)（v3.0.3） |
 | RDK S100 / S600 | [developer.d-robotics.cc/resource](https://developer.d-robotics.cc/resource) 下载中心 | 官方文档 [rdk_s_doc §7.6](https://developer.d-robotics.cc/rdk_s_doc/Advanced_development/rdk_gen) |
 
-X 系列与 S 系列 BSP 严格隔离：skill 1–7 覆盖 X3/X5 主机侧开发，S 系列仅由 `bsp-s-series` 负责。镜像烧录属于设备侧——请使用设备技能包中的 `rdk-board-knowledge`（S 系列 xburn DFU/Fastboot）或官方安装文档。
+X 系列与 S 系列 BSP 严格隔离：skill 1–7 覆盖 X3/X5 主机侧开发，S 系列 BSP 获取由 `bsp-s-series` 负责；已配置的 X5/S 系列板卡摄像头点亮使用 `cmos-sensor-bringup`。镜像烧录属于设备侧——请使用设备技能包中的 `rdk-board-knowledge`（S 系列 xburn DFU/Fastboot）或官方安装文档。
 
 ## 安装
 
@@ -37,7 +38,7 @@ X 系列与 S 系列 BSP 严格隔离：skill 1–7 覆盖 X3/X5 主机侧开发
 npx skills add d-robotics/rdk-skills
 ```
 
-在目录中选择需要的 `bsp-*` skill。
+在目录中选择需要的 `bsp-*` 或 `cmos-sensor-bringup` skill。
 
 ### 直接克隆本仓库
 
