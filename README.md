@@ -6,7 +6,7 @@
 
 BSP (Board Support Package) development skills for D-Robotics RDK boards. Each skill is a portable instruction set that teaches AI coding agents how to build the RDK system on a development host — cross-compilation environment, source sync, full system images, kernel/DTB/driver modules, `hobot-*` deb packages, bootloader/miniboot, and Ubuntu rootfs customization — grounded in the official build repos, not model memory.
 
-Current BSP release: **v1.0.0**.
+Current BSP release: **v1.1.0**.
 
 | Skill | What it does |
 |---|---|
@@ -18,6 +18,7 @@ Current BSP release: **v1.0.0**.
 | `bsp-bootloader-build` | Build miniboot (`xbuild.sh lunch`, X5 documented) |
 | `bsp-rootfs-custom` | Make and customize the Ubuntu root filesystem (samplefs, debootstrap/chroot) |
 | `bsp-s-series` | S100/S600 BSP source acquisition and build entry points |
+| `cmos-sensor-bringup` | Bring up direct MIPI and SerDes sensors with board-specific configuration, driver generation, and evidence-based RAW/ISP validation |
 
 ## Supported platforms
 
@@ -27,7 +28,7 @@ Current BSP release: **v1.0.0**.
 | RDK X3 | [`manifest`](https://github.com/D-Robotics/manifest) | [`rdk-gen`](https://github.com/D-Robotics/rdk-gen) (v3.0.3) |
 | RDK S100 / S600 | [developer.d-robotics.cc/resource](https://developer.d-robotics.cc/resource) download center | documented in [rdk_s_doc §7.6](https://developer.d-robotics.cc/rdk_s_doc/Advanced_development/rdk_gen) |
 
-X-series and S-series BSP are strictly isolated: skills 1–7 cover X3/X5 host-side development; S-series lives in `bsp-s-series` only. Flashing built images onto boards is device-side territory — use `rdk-board-knowledge` from the RDK Device Skills pack (S-series xburn DFU/Fastboot) or the official install docs.
+X-series and S-series BSP are strictly isolated: skills 1–7 cover X3/X5 host-side development; S-series BSP acquisition uses `bsp-s-series`; camera bring-up across the configured X5/S-series boards uses `cmos-sensor-bringup`. Flashing built images onto boards is device-side territory — use `rdk-board-knowledge` from the RDK Device Skills pack (S-series xburn DFU/Fastboot) or the official install docs.
 
 ## Installation
 
@@ -37,7 +38,7 @@ X-series and S-series BSP are strictly isolated: skills 1–7 cover X3/X5 host-s
 npx skills add d-robotics/rdk-skills
 ```
 
-Pick the `bsp-*` skills you need from the catalog.
+Pick the `bsp-*` skills or `cmos-sensor-bringup` from the catalog.
 
 ### From this repo directly
 
