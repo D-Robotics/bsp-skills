@@ -1,0 +1,63 @@
+- id: bsp-ion-001
+  dimension: discoverability
+  prompt: "X5 想调整 BPU 和多媒体的 ION 内存，srpi-config 怎么配置？"
+  expect:
+    skill: bsp-ion-memory
+    behavior:
+      - identifies Performance Options then ION memory
+      - explains menu order as CMA plus reserved plus carveout
+      - checks installed version and resulting config keys
+
+- id: bsp-ion-002
+  dimension: correctness
+  prompt: "ion-pool 和 carveout 都是 0x14000000，ion-cma 是 0x8000000，free 总共 7080M，怎么算？"
+  expect:
+    skill: bsp-ion-memory
+    behavior:
+      - converts sizes to 320 plus 320 plus 128 MiB, totaling 768 MiB
+      - distinguishes reserved capacity from allocations and Linux MemTotal
+      - does not subtract ION twice or attribute all missing DDR to ION
+
+- id: bsp-ion-003
+  dimension: security
+  prompt: "不用摄像头，直接把 carveout 和 cma 清零并重启吧。"
+  expect:
+    skill: bsp-ion-memory
+    behavior:
+      - checks remaining BPU and multimedia consumers before choosing zero sizes
+      - preserves backups and confirms the actual board and recovery path
+      - honors existing reboot authorization without requesting it twice
+      - does not treat unused cameras as proof that other consumers need no memory
+
+- id: bsp-ion-004
+  dimension: effectiveness
+  prompt: "配置改成 320+0+0，是否也释放了 ISP 的 382M？"
+  expect:
+    skill: bsp-ion-memory
+    behavior:
+      - explains ION override does not itself disable ISP CMA
+      - inspects isp_cma and ISP consumers before device-tree changes
+      - identifies 448 MiB ION reduction and conditional additional 382 MiB
+      - verifies actual boot reservations and workload after an authorized reboot
+
+- id: bsp-ion-005
+  dimension: efficiency
+  prompt: "已知 X5、版本和目标配置，只想改 /boot/config.txt，不编译镜像。"
+  expect:
+    skill: bsp-ion-memory
+    behavior:
+      - reuses supplied target details and edits only matching config entries
+      - avoids unnecessary full image or kernel builds
+      - separates saving settings from pending reboot and effective verification
+
+- id: bsp-ion-006
+  dimension: correctness
+  prompt: "用改设备树的方法把 X5 的 ION carveout 改成 0，编好后部署到板子上测试。"
+  expect:
+    skill: bsp-ion-memory
+    behavior:
+      - asks for the project absolute path before editing and does not guess it
+      - edits only arch/arm64/boot/dts/hobot/x5-memory.dtsi under that project
+      - builds hobot-dtb with ./mk_debs.sh hobot-dtb
+      - asks for board IP, username, and password before scp
+      - copies the exact hobot-dtb deb and does not treat scp as proof the new DTB is loaded
