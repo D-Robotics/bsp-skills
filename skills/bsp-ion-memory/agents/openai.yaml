@@ -1,0 +1,3 @@
+interface:
+  display_name: "ION memory"
+  short_description: "Configure ION memory size for BPU and multimedia"
