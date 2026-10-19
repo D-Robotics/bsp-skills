@@ -80,3 +80,35 @@
       - 不改 mipi_host1、mipi_host2、mipi_host3
       - 在 rdk-x5-bsp 根目录执行 mk_kernel.sh 与 mk_debs.sh hobot-dtb
       - 安装 dtb 和重启前先向用户确认
+
+- id: cmos-sensor-bringup-009
+  dimension: effectiveness
+  prompt: "RDK X5 的新 sensor 已通过 RAW/ISP，请继续完成 hobot-spdev、vio2display 和浏览器预览。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 沿用已确认入口信息，读取 rdkx5_spdev_preview.md
+      - 适配 spdev 独立 sensor 表并核对自动选中模式，不复用 multimedia samples 的 camera_index
+      - 编译部署安装 hobot-spdev 与 hobot-sp-samples，并核实运行时库和 Python 绑定
+      - vio2display 仅用真实支持的宽高参数，实际画面更新才确认显示通过
+      - 浏览器检查 WebSocket 和连续帧，服务启动不等于预览通过
+
+- id: cmos-sensor-bringup-010
+  dimension: correctness
+  prompt: "vio2display 正在等待 q，已经运行 10 秒，但没有接显示器。网页 HTTP 200，模型文件不存在。都算验证通过吧。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 持续显示不套用 RAW 的 10 秒超时
+      - HDMI 画面标记未验证，报告显示器缺失
+      - 报告模型阻塞，HTTP 200 不等于浏览器画面通过
+      - 保留已经通过的 RAW/ISP 结果
+
+- id: cmos-sensor-bringup-011
+  dimension: correctness
+  prompt: "项目是 S600，RAW 已通过，请按原流程结束；不要启动 X5 的网页服务。"
+  expect:
+    skill: cmos-sensor-bringup
+    behavior:
+      - 不引入 RDK X5 的 spdev 显示或 Web 验证步骤
+      - 遵循当前 conf 的原有验证范围

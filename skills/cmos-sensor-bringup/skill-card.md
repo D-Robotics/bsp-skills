@@ -35,3 +35,7 @@
 - `project_info/*_project.conf`
 - `board_info/*_board.md`
 - `embedded_common/embedded_rulers.md`
+
+## RDK X5 扩展验证（1.2.0）
+
+RAW/ISP 通过后，继续独立 spdev sensor 表适配、hobot-spdev/hobot-sp-samples 编译安装、vio2display 显示和 WebSocket 浏览器预览。参考 code_ruler/rdkx5_spdev_preview.md。显示依赖外接屏，当前 Web 样例依赖 YOLO 模型且限制单 MIPI；画面未观察不得标记通过。其他平台维持原范围。

@@ -2,10 +2,11 @@
 name: cmos-sensor-bringup
 description: >-
   点亮 SerDes camera 和 direct MIPI camera 的新 sensor bring-up：收集项目与接入信息，按规律提取参数、生成驱动代码，再编译推送到板端验证。项目 conf 含 isp_test_dir 时，RAW（get_vin_data）通过后继续跑 get_isp_data。
+  RDK X5 继续适配编译 hobot-spdev、运行 vio2display 并验证浏览器预览。
   触发词: 调试新 sensor、$cmos-sensor-bringup、点亮 camera、mipi_index、link_index、serdes camera、direct mipi camera、get_isp_data。
   不要用于：BSP 源码同步、整机镜像或与本次 sensor 无关的编译；寄存器位定义查询交给 knowledge-rag。
 metadata:
-  version: "1.1.1"
+  version: "1.2.0"
   tags: [sensor, serdes, mipi, bring-up]
 ---
 
@@ -13,7 +14,7 @@ metadata:
 
 ## Purpose
 
-点亮一颗新 sensor。从用户给出的项目、文档和接入位置出发，按规律提取参数、改驱动、编译推送到板端。先验证 RAW（get_vin_data）。当前项目 conf 含 `isp_test_dir` 时，RAW 通过后继续验证 ISP（get_isp_data）。验证失败时按经验文件排查。入口是本 skill，不是计划模式。
+点亮一颗新 sensor。从用户给出的项目、文档和接入位置出发，按规律提取参数、改驱动、编译推送到板端。先验证 RAW（get_vin_data）。当前项目 conf 含 `isp_test_dir` 时，RAW 通过后继续验证 ISP（get_isp_data）。验证失败时按经验文件排查。RDK X5 默认继续完成 hobot-spdev 适配、显示与浏览器预览，细节见 `code_ruler/rdkx5_spdev_preview.md`；其他板保持原有验证范围。入口是本 skill，不是计划模式。
 
 ## When to use
 
@@ -34,6 +35,8 @@ Do not use:
 ### 可参考文件
 
 调试时只能参考：`code_ruler/patterns_serdes.md` 或 `code_ruler/patterns_mipi.md`（根据 sensor 类型）、`board_info/<board>_board.md`（根据 `project_info/<项目名>_project.conf` 中的 board 值加载对应板级文件，如 board=x5_evb→x5_evb_board.md、board=rdkx5→rdkx5_board.md、board=s100_6v→s100_6v_board.md、board=s100_12v→s100_12v_board.md、board=s600→s600_board.md；只加载当前板，不加载其它板；若对应文件不存在则停下报错给用户，告知缺失的文件名与 board 值，不得静默跳过继续执行）、`experience/sensor-debug-experience-serdes.md` 或 `experience/sensor-debug-experience-mipi.md`（根据 sensor 类型）。当前项目 conf 含 `isp_test_dir` 时，还须读取 `code_ruler/isp_pipeline_tuning.md`。寄存器位定义只调用 knowledge-rag 的 `search_register`，不读取 `reference/` 下的 PDF。
+
+RDK X5 的封装库、显示和浏览器阶段额外允许读取 `code_ruler/rdkx5_spdev_preview.md` 及其中指明的当前工程公共框架、当前 sensor 配置、样例源码和 README；该例外不改变参数提取阶段的来源限制。
 
 ### 前置
 
@@ -110,7 +113,7 @@ Do not use:
 
 ### 3. 编译推送安装
 
-读取 `project_info/<项目名>_project.conf` 中的 build/deploy/install 命令，依次执行。所有配置在该 conf 中的仓库都必须执行 deploy 和 install，不论本次是否改动其代码，以保证板端环境完整。
+读取 `project_info/<项目名>_project.conf` 中的 build/deploy/install 命令，依次执行。RDK X5 新增的 hobot-spdev / hobot-sp-samples 在 RAW/ISP 通过后按第 4.3 节编译部署安装，不在本步提前构建。其余所有配置在该 conf 中的仓库都必须执行 deploy 和 install，不论本次是否改动其代码，以保证板端环境完整。
 
 执行 deploy/install/test 前先 ping 测试 board_ip 是否可达：
 
@@ -130,7 +133,7 @@ Do not use:
 
 ### 4. 验证测试
 
-分两段。当前项目 conf 含 `isp_test_dir` 时，RAW 与 ISP 都通过才算本次验证通过。不含 `isp_test_dir` 时只做 RAW，做完告知用户该板未配置 ISP 测试，不得猜测 `get_isp_data` 的路径。
+分两段。当前项目 conf 含 `isp_test_dir` 时，RAW 与 ISP 都通过才算底层验证通过；RDK X5 的完整验证还须完成第 4.3 节并分别报告结果。不含 `isp_test_dir` 时只做 RAW，做完告知用户该板未配置 ISP 测试，不得猜测 `get_isp_data` 的路径。
 
 #### 4.1 RAW（get_vin_data）
 
@@ -154,12 +157,19 @@ ssh 登录板端，进入 test_dir，按顺序执行 test_clean、test_build、t
 2. 生成的 yuv 文件大小等于 `width × height × 3 / 2`。
 3. dmesg 或 logcat 中 `sensor_cali_name` 等于 `<sensor>_tuning.json`。
 
-三条都满足则告知用户 RAW 与 ISP 都已通过并停止。该 tuning 只用于建链，BLS、AWB、LSC、AEC 仍是模板数据，不能当作最终画质版本。
+三条都满足则告知用户 RAW 与 ISP 都已通过；board=rdkx5 时继续第 4.3 节，其他板停止。该 tuning 只用于建链，BLS、AWB、LSC、AEC 仍是模板数据，不能当作最终画质版本。
+
+#### 4.3 RDK X5：封装库、显示与浏览器预览
+
+仅 board=rdkx5，读取 `code_ruler/rdkx5_spdev_preview.md`，按该文件依次适配独立 sensor 表、编译部署 hobot-spdev/hobot-sp-samples、运行 vio2display、验证浏览器实时画面。用户仅要求底层 RAW/ISP 时按用户范围停止。沿用已确认信息，已有 RAW/ISP 验证证据时从本阶段继续，不重跑入口提问。
+
+此阶段有独立验收和排查依据，不能套用 RAW 超时或要求仅匹配 RAW experience。缺显示器、模型或浏览器访问条件时报告阻塞项；最终分别报告各阶段状态，不得把服务启动等同于画面通过。
 
 ### 5. 问题修复
 
 先区分失败段。
 
+- **spdev/显示/浏览器失败**（第 4.3 节）：按 `code_ruler/rdkx5_spdev_preview.md` 对应阶段检查，标注该阶段和实测证据；不进入下列 RAW/ISP 排查分支。
 - **RAW 失败**（第 4.1 节）：按下面的 experience 流程排查。
 - **ISP 失败**（第 4.2 节）：只读 `code_ruler/isp_pipeline_tuning.md` 的「ISP 失败时的检查项」，按其中的检查项名排查。不得改 BLS、AWB、LSC、AEC。三项都与期望一致而测试仍失败时，结论为经验未覆盖，停下问用户。
 
@@ -182,11 +192,11 @@ RAW 失败时，先从 3 种日志来源（测试打印、logcat、dmesg）分�
 
 ## Safety
 
-- 6 条入口信息未由用户明确提供之前，不读项目、不改代码、不编译、不推板。
+- 新调试任务的 6 条入口信息未由用户明确提供之前，不读项目、不改代码、不编译、不推板；同一任务已明确提供且 RAW/ISP 已通过时可沿用这些信息继续第 4.3 节。
 - 排查项目源码时禁止从项目根全局扫描。禁止读取 `out/deploy`、`out/...`、`prebuilts/` 等构建产物 / 预编译二进制目录。这些不是源码，会污染判断（如把 .so 产物误当成已有驱动）。
 - 调试与排查时禁止查询项目 git 历史：不得执行 `git log`、`git show`、`git blame`、`git diff <commit>`、`git log -p` 等任何读取历史 commit 的命令，也不得通过其它方式检索历史提交信息。规律文件的条款是当前生效规则，以规律文件原文为准，不得用「历史 commit 曾经怎么写」来佐证、推翻或绕过现行规律。规律文件中亦不再保留任何 commit hash / sensor 名 / 出处图片等来源标注。
 - 参数值只取 sensor 文档和 patterns 中写明的内容。禁止编造、猜测或填充默认值。
 - build、deploy、install 或测试返回非零退出码或明显错误时停下，向用户汇报，等待处理。不要自行换 IP 以外的配置项，也不要把本次 IP 写回配置文件。
 - 检查阶段只汇报实测值，不提出修改。RAW 修复必须标出 experience 文件中的检查项名。ISP 修复必须标出 `isp_pipeline_tuning.md` 中的检查项名。
 
-> Sources: `code_ruler/patterns_serdes.md`、`code_ruler/patterns_mipi.md`、`code_ruler/isp_pipeline_tuning.md`、`experience/sensor-debug-experience-serdes.md`、`experience/sensor-debug-experience-mipi.md`、`project_info/*_project.conf`、`board_info/*_board.md`、`embedded_common/embedded_rulers.md`。寄存器手册留在使用者本机，经 knowledge-rag 检索，不随本 skill 发布。
+> Sources: `code_ruler/rdkx5_spdev_preview.md`、`code_ruler/patterns_serdes.md`、`code_ruler/patterns_mipi.md`、`code_ruler/isp_pipeline_tuning.md`、`experience/sensor-debug-experience-serdes.md`、`experience/sensor-debug-experience-mipi.md`、`project_info/*_project.conf`、`board_info/*_board.md`、`embedded_common/embedded_rulers.md`。寄存器手册留在使用者本机，经 knowledge-rag 检索，不随本 skill 发布。
