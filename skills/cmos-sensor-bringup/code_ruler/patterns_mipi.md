@@ -34,7 +34,7 @@
 
 #### lane（MIPI Lane 数）
 - 含义：MIPI CSI-2 通道数
-- 提取规律：文档直读；或根据sensor手册中的LANECOUNT/LANEMODE 寄存器看init setting 配置的是多少lane 
+- 提取规律：文档直读；或根据sensor手册中的LANECOUNT/LANEMODE 寄存器看init setting 配置的是多少lane
 - 确认判据：没有获取到则加入清单找用户确认。init 未配 lane 寄存器但文档表有默认值+位定义时,init 沿用默认值=已获取到,按默认值取值不询问
 
 #### datatype
@@ -270,8 +270,8 @@ static uint32_t <sensor>_init_1920x1080_2lane_linear_setting[] = {
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include "hb_cam_utility.h"          
-#include "hb_camera_data_config.h"   
+#include "hb_cam_utility.h"
+#include "hb_camera_data_config.h"
 #include "inc/<sensor>_setting.h"
 ```
 
@@ -568,7 +568,7 @@ static int <sensor>_linear_data_init(sensor_info_t *sensor_info) {
     turning_data.sensor_data.exposure_time_max = <SENSOR>_FRAME_LENGTH - 5;
     turning_data.sensor_data.exposure_time_min = 1;
     turning_data.sensor_data.analog_gain_max = (<gain_lut_count> > 256) ? 255 : (<gain_lut_count> - 1);
-    turning_data.sensor_data.digital_gain_max = (<dgain_lut_count> > 256) ? 255 : (<dgain_lut_count> - 1);  // 无 dgain_lut 时 <dgain_lut_count> 填 0 → 结果 0
+    turning_data.sensor_data.digital_gain_max = (<dgain_lut_count> == 0) ? 0 : ((<dgain_lut_count> > 256) ? 255 : (<dgain_lut_count> - 1));  // 无 dgain_lut 时 count=0，上限为 0
     turning_data.sensor_data.analog_gain_init = 32;
     turning_data.sensor_data.digital_gain_init = 0;
     turning_data.sensor_data.exposure_time_init = ((<SENSOR>_FRAME_LENGTH - 5) + 1) / 2;  // 取上下限中点，AE 从中点起步
@@ -976,4 +976,3 @@ extern vp_sensor_config_t <sensor>_linear_<width>x<height>_raw<format_bitwidth>_
 运行时通过 `-e <json_file>` 参数覆盖 sensor 配置，支持的参数：settle、lpwm_attr。
 
 调试阶段可频繁修改参数而无需重编。
-

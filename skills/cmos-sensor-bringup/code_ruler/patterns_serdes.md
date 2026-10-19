@@ -202,7 +202,7 @@
 | 24 | PDAF 输出寄存器未在 init 序列中启用 | PDAF 数据不输出 |
 | 25 | `support_sensor_mode` 字段缺失 | 不支持的 sensor_mode 导致程序崩溃 |
 | 26 | 非 DOL2 sensor 错误设为在线模式 | 多路冲突 |
-| 27 | LPWM 在 NORMAL_M 模式下误启用 | 误触发同步曝光 |
+| 27 | 无 T 字段命中或 config_index 未含触发位时误启用 LPWM | 误触发同步曝光 |
 | 28 | Serializer 双目 pipe 只配置单 VC | 右目数据丢失 |
 
 ---
@@ -628,7 +628,7 @@ static vin_node_attr_t <sensor>std_vin_node_attr = {
 };
 ```
 
-- LPWM period = `1000000 / fps`（us），如 30fps → 33333；offset = `1000000 − (period × fps)`（us），如 30fps → 1000000−(33333×30)=10、60fps → 40、10fps → 0；仅触发模式配，NORMAL_M 不配（见 §23 遗漏点 #27）
+- LPWM period = `1000000 / fps`（us），如 30fps → 33333；offset = `1000000 − (period × fps)`（us），如 30fps → 1000000−(33333×30)=10、60fps → 40、10fps → 0；仅 T 字段命中、config_index 含触发位时配置；无触发信号时不配。sensor_mode 按 §0.2.2 保持 NORMAL_M，不用它判断是否启用 LPWM（见 §0.2.3）
 
 ### 3.8 vp_sensor_config_t — 顶层聚合配置
 
@@ -819,7 +819,3 @@ typedef enum { MIPI=0, DVP, DVP_NEXT } camera_sensor_inf_type_t;
 | `<sensor>_trigger_cfg` | §0.2.3 触发 | §2.2(b)、§2.3(d) | 仅触发模式定义 |
 | `<sensor>_gain_lut` | gain_lut | §2.2(d) | 仅 RAW sensor |
 | `<VENDOR>_*` AWB/HDR 宏 | （标定数据块） | §2.2(e) | 仅特定厂商 |
-
-
-
-
