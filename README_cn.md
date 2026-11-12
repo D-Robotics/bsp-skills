@@ -18,6 +18,7 @@
 | `bsp-bootloader-build` | 编译 miniboot（`xbuild.sh lunch`，X5 已文档化） |
 | `bsp-rootfs-custom` | 制作与定制 Ubuntu 根文件系统（samplefs、debootstrap/chroot） |
 | `bsp-s-series` | S100/S600 BSP 源码获取与构建入口 |
+| [`rdk-xburn-troubleshoot`](skills/rdk-xburn-troubleshoot/SKILL.md) | 按板型、介质及下载方式排查 RDK S100、S600、X5 的 XBurn 烧录与启动问题 |
 
 ## 支持的平台
 
@@ -27,7 +28,7 @@
 | RDK X3 | [`manifest`](https://github.com/D-Robotics/manifest) | [`rdk-gen`](https://github.com/D-Robotics/rdk-gen)（v3.0.3） |
 | RDK S100 / S600 | [developer.d-robotics.cc/resource](https://developer.d-robotics.cc/resource) 下载中心 | 官方文档 [rdk_s_doc §7.6](https://developer.d-robotics.cc/rdk_s_doc/Advanced_development/rdk_gen) |
 
-X 系列与 S 系列 BSP 严格隔离：skill 1–7 覆盖 X3/X5 主机侧开发，S 系列仅由 `bsp-s-series` 负责。镜像烧录属于设备侧——请使用设备技能包中的 `rdk-board-knowledge`（S 系列 xburn DFU/Fastboot）或官方安装文档。
+前七项技能覆盖 X3/X5 主机构建；`bsp-s-series` 负责 S 系列源码与构建。S100、S600 或 X5 的 XBurn 烧录故障由 `rdk-xburn-troubleshoot` 按板型排查。其他板端流程参阅相应产品手册或设备技能包。
 
 ## 安装
 
@@ -70,7 +71,7 @@ skills/<skill-name>/
 
 - S 系列构建流程细节（待下载中心 S 系列 BSP 源码包就位）
 - X3 bootloader/miniboot 构建步骤
-- 板卡烧录工作流 skill（待与设备技能包裁定重叠边界）
+- 与设备技能包协调其他板端烧录流程
 
 ## 许可证
 

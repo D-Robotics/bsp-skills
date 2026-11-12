@@ -24,7 +24,7 @@ Use when:
 
 Do not use:
 - X3/X5 host-side builds — the other bsp-* skills
-- Board-side flashing/diagnostics — `rdk-board-knowledge` (RDK Device Skills pack)
+- S100/S600 XBurn failures — [rdk-xburn-troubleshoot](../rdk-xburn-troubleshoot/SKILL.md); other board-side workflows — `rdk-board-knowledge` (RDK Device Skills pack)
 
 ## Instructions
 
@@ -39,7 +39,7 @@ Do not use:
 5. **Platform differences to state** (verified facts):
    - Model format on S-series is `.hbm` (X-series uses `.bin`)
    - S100/S100P are Nash-e, S600 is Nash-p (4× Nash core)
-   - Flashing uses xburn (DFU/Fastboot) — device-side, see `rdk-board-knowledge`
+   - For S100/S600 XBurn diagnostics, use `rdk-xburn-troubleshoot` and select the actual board and storage medium.
 
 6. **Gap handling.** Until the downloaded source package is at hand, do not fabricate build commands. Present the official doc chapters above and offer to walk through them step by step with the user.
 

@@ -28,6 +28,8 @@ Do not use:
 
 ## Instructions
 
+For an RDK X5 image already built but failing during XBurn download, NAND write, or boot verification, use [rdk-xburn-troubleshoot](../rdk-xburn-troubleshoot/SKILL.md).
+
 1. **Preflight before any build or flash command.** Confirm the X5 board variant, boot medium (SD, eMMC, or NAND), the exact boot-logo or bootloader change, a known-good recovery method, and the location of a backup of the current boot artifact. For an immediate flash or replacement request, stop here: flashing bootloader data is irreversible until the target medium and recovery path are confirmed. Route normal OS-image branding or customization to `bsp-image-build` instead.
 
 2. Prerequisites after the preflight passes: `bsp-source-sync` completed; `source/bootloader` present.

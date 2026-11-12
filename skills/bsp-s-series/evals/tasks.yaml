@@ -34,3 +34,11 @@
       - rejects the X5 command as incompatible with S100
       - asks for the exact S board and source package path before guidance
       - directs the user to the S-series download center and rdk_s_doc rather than bsp-source-sync
+
+- id: bsp-s-005
+  dimension: discoverability
+  prompt: "S600 写完 NVMe 重启后还是旧系统，帮我看 XBurn 日志。"
+  expect:
+    skill: rdk-xburn-troubleshoot
+    behavior:
+      - routes flashing and boot evidence to the board-specific S600 troubleshooting path

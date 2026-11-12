@@ -18,6 +18,7 @@ Current BSP release: **v1.0.0**.
 | `bsp-bootloader-build` | Build miniboot (`xbuild.sh lunch`, X5 documented) |
 | `bsp-rootfs-custom` | Make and customize the Ubuntu root filesystem (samplefs, debootstrap/chroot) |
 | `bsp-s-series` | S100/S600 BSP source acquisition and build entry points |
+| [`rdk-xburn-troubleshoot`](skills/rdk-xburn-troubleshoot/SKILL.md) | Diagnose XBurn flashing and boot issues on RDK S100, S600 and X5 |
 
 ## Supported platforms
 
@@ -27,7 +28,7 @@ Current BSP release: **v1.0.0**.
 | RDK X3 | [`manifest`](https://github.com/D-Robotics/manifest) | [`rdk-gen`](https://github.com/D-Robotics/rdk-gen) (v3.0.3) |
 | RDK S100 / S600 | [developer.d-robotics.cc/resource](https://developer.d-robotics.cc/resource) download center | documented in [rdk_s_doc §7.6](https://developer.d-robotics.cc/rdk_s_doc/Advanced_development/rdk_gen) |
 
-X-series and S-series BSP are strictly isolated: skills 1–7 cover X3/X5 host-side development; S-series lives in `bsp-s-series` only. Flashing built images onto boards is device-side territory — use `rdk-board-knowledge` from the RDK Device Skills pack (S-series xburn DFU/Fastboot) or the official install docs.
+Skills 1–7 cover X3/X5 host builds; `bsp-s-series` covers S-series source and build entry points. For XBurn failures on S100, S600 or X5, use `rdk-xburn-troubleshoot`. For other board-side workflows, consult the matching product guide or RDK Device Skills.
 
 ## Installation
 
@@ -70,7 +71,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Commits must be DCO signed-off (`git com
 
 - S-series build flow details (pending S-series BSP source package from the download center)
 - X3 bootloader/miniboot build steps
-- Board flashing workflow skill (pending overlap decision with RDK Device Skills)
+- Additional board flashing workflows, coordinated with RDK Device Skills
 
 ## License
 
