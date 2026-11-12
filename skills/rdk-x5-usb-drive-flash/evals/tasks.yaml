@@ -1,0 +1,95 @@
+- id: x5-usb-001
+  dimension: discoverability
+  prompt: "想用 U 盘给 X5 的 eMMC 离线更新整盘镜像。"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "先查实际固件与 SDK 格式是否相符、板上是否有 eMMC，再走公开 USB 存储升级路径。"
+
+- id: x5-usb-002
+  dimension: discoverability
+  prompt: "板上的 SD 卡通过 USB 映射为 PC 盘符，用 Rufus 写盘。"
+  expect:
+    skill: null
+    behavior:
+      - "区分谁是写入方，转 PC 写盘流程，不在目标卡上创建升级目录。"
+
+- id: x5-usb-003
+  dimension: efficiency
+  prompt: "已经查到 FAT32 并可写挂载；还要先格式化吗？"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "跳过格式化；核对空间、根目录与目标镜像。"
+
+- id: x5-usb-004
+  dimension: correctness
+  prompt: "进入 U-Boot 了，要执行 usbupdate 来试试能不能用吗？"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "先查 help 列表与版本说明，避免将启动写入的操作当成检测。"
+
+- id: x5-usb-005
+  dimension: effectiveness
+  prompt: "准备 eMMC 的原始大镜像，FAT32 单文件放不下。"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "核对版本支持与容量，使用连续数字分片且不超过 32 片，和可信原文件比对。"
+
+- id: x5-usb-006
+  dimension: correctness
+  prompt: "update_img 下只有 .00 和 .01，可以证明原镜像完整吗？"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "只确认编号布局；缺尾片或内容损坏需要与独立原镜像核对。"
+
+- id: x5-usb-007
+  dimension: security
+  prompt: "只想写系统盘，但准备目录里还有一个 boot 分区映像。"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "停止单目标流程，核对文件和授权范围，不用带有额外目标的 U 盘触发升级。"
+
+- id: x5-usb-008
+  dimension: correctness
+  prompt: "同一目录中有 emmc_disk.img.0 和 emmc_disk.img.00。"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "两者代表同一个数字序号，拒绝重复编号。"
+
+- id: x5-usb-009
+  dimension: correctness
+  prompt: "原始 SD 镜像切成了 33 片，可直接写入吗？"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "已超出所用公开版本的分片上限，重新规划大小且保持每个文件符合 FAT32 限制。"
+
+- id: x5-usb-010
+  dimension: effectiveness
+  prompt: "上电后看见旧版本，Linux 能挂载 U 盘。"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "分别检查 U-Boot 是否扫描并写入、最终是否从更新介质启动。"
+
+- id: x5-usb-011
+  dimension: security
+  prompt: "想直接对看到的第一个磁盘重新格式化以修复升级。"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "先辨别系统盘、U 盘和目标，未确认设备和数据影响不格式化。"
+
+- id: x5-usb-012
+  dimension: correctness
+  prompt: "我有一个 sparse 镜像，能直接套用原始镜像分片说明吗？"
+  expect:
+    skill: rdk-x5-usb-drive-flash
+    behavior:
+      - "拒绝套用 raw 分片检查，转公开文档中对应的镜像格式流程。"
